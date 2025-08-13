@@ -1,0 +1,82 @@
+.carousel_wrapper{
+    margin-top: 20px;
+}
+
+.link_wrrapper :first-child{
+    margin-right: 20px;
+}
+.carousel_wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.accordion .accordion-button {
+  font-weight: 500;
+}
+
+.accordion .accordion-body {
+  text-align: left;
+  font-size: 0.95rem;
+  color: #444;
+}
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Carousel container */
+.carousel_wrapper {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Carousel images */
+.main-carousel img {
+  height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover effect */
+.main-carousel img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Caption styling */
+.carousel-caption {
+  background: rgba(0, 0, 0, 0.6); /* Semi-transparent dark background */
+  padding: 1rem;
+  border-radius: 8px;
+  bottom: 20px; /* Moves caption up slightly */
+}
+
+.carousel-caption h3,
+.carousel-caption p {
+  color: #f8f9fa; /* Light font for contrast */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); /* Improves readability */
+}
+
+/* Responsive image height */
+@media (max-width: 768px) {
+  .main-carousel img {
+    height: 200px;
+  }
+
+  .carousel_wrapper {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+
+  .carousel-caption {
+    font-size: 0.9rem;
+    padding: 0.75rem;
+  }
+}
+
+
+
+
+
+

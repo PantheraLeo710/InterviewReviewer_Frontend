@@ -1,0 +1,25 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+
+}
+
+/* .footer {
+  background-color: #343a40;
+  color: white;
+  padding: 1rem 0;
+} */
+.feature-card {
+    background-color: #f8f9fa;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 0.75rem;
+}
+
+.footer {
+    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+    color: white;
+    width: 100%;
+}

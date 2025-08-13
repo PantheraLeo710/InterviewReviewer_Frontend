@@ -1,0 +1,4 @@
+.visible-placeholder::placeholder {
+  color: #dee2e6;
+  opacity: 1;
+}
