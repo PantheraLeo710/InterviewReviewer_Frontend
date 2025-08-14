@@ -2,7 +2,7 @@
 const isDev = process.env.NODE_ENV === 'development';
 const BASE_URL = isDev
   ? 'http://localhost:5000/api/v1'
-  : 'https://your-live-domain.com/api/v1';
+  : 'https://interviewreviewer-backend.onrender.com/api/v1';
 
 export const API = {
   AUTH: {
