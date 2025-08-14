@@ -1,69 +1,131 @@
+import React from "react";
+import { Card, Button, Accordion } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { Card } from "react-bootstrap";
-import './dashboardpg.css'; 
+import { FaChartBar, FaCheckCircle, FaTrophy } from "react-icons/fa";
 
-function Dashboard({ isStaff = false }) {
+const Dashboard = () => {
+  // Hardcoded values for now
+  const attempts = 5;
+  const accuracy = 80;
+  const lastScore = "9/10";
+
   return (
-    <div className="d-flex flex-column min-vh-100">
-      <div className="container mt-5 text-center flex-grow-1">
-        <h1 className="mb-3">Interview Reviewer Dashboard🎯</h1>
-        <p className="lead">
-          Your personal space for tracking interview performance, reviewing feedback, and improving with every attempt.
-        </p>
+    <div style={{ backgroundColor: "#f4f4f4", minHeight: "100vh" }}>
+      <div className="container py-4">
 
-        <div className="mt-4">
-          <h4 className="mb-3">🚀 Ready to begin?</h4>
-          <p className="lead">Choose where you'd like to go:</p>
-
-          <div className="d-flex justify-content-center gap-3 flex-wrap link_wrrapper">
-            <Link to="/questions" className="btn btn-primary btn-lg">
-              📝 Start Questions
-            </Link>
-
-            <Link to="/history" className="btn btn-outline-secondary btn-lg">
-              📊 View History
-            </Link>
-          </div>
-
-          {isStaff && (
-            <div className="mt-4">
-              <h5 className="mb-2">🛠 Staff Tools</h5>
-              <div className="d-flex justify-content-center gap-3 flex-wrap">
-                <Link to="/feedback" className="btn btn-outline-info btn-lg">
-                  💬 Staff Feedback
-                </Link>
-
-                <Link to="/submission-result" className="btn btn-outline-dark btn-lg">
-                  🧠 Review Last Result
-                </Link>
-              </div>
-            </div>
-          )}
-        </div>
-
-        
-        <Card className="mt-5 shadow-sm">
+        {/* Main Header Card */}
+        <Card className="shadow-sm mb-4">
           <Card.Body>
-            <Card.Title>✨ Features at a Glance</Card.Title>
-            <ul className="list-unstyled mt-3">
-              <li>✅ Real-time scoring and feedback</li>
-              <li>📚 History tracking for every attempt</li>
-              <li>🧠 Personalized insights to improve performance</li>
-              <li>🔒 Secure and role-based access for staff</li>
-            </ul>
+            <h2 className="fw-bold text-center">
+              Interview Reviewer Dashboard 🎯
+            </h2>
+            <p className="text-center text-muted">
+              Track your interview performance, view feedback, and improve with every attempt.
+            </p>
+            <div className="d-flex justify-content-center gap-3 mb-3">
+              <span><FaChartBar /> {attempts} Attempts</span>
+              <span><FaCheckCircle /> {accuracy}% Accuracy</span>
+              <span><FaTrophy /> Last Score: {lastScore}</span>
+            </div>
+            <div className="d-flex justify-content-center gap-5">
+              <Button
+                as={Link}
+                to="/questions"
+                style={{
+                  backgroundColor: "#2f3640",
+                  borderColor: "#2f3640"
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = "#353b48"}
+                onMouseOut={(e) => e.target.style.backgroundColor = "#2f3640"}
+              >
+                Start Questions
+              </Button>
+              <Button
+                as={Link}
+                to="/history"
+                variant="outline-dark"
+              >
+                View History
+              </Button>
+            </div>
           </Card.Body>
         </Card>
+
+        {/* Quote Card */}
+        <Card className="shadow-sm mb-4">
+          <Card.Body className="text-center text-primary">
+            💡 <em>Success is the sum of small efforts, repeated day in and day out.</em>
+          </Card.Body>
+        </Card>
+
+        {/* Stats Row */}
+        <div className="row g-4 mb-4">
+          <div className="col-md-4">
+            <Card className="shadow-sm h-100">
+              <Card.Body className="text-center">
+                <h6>Total Attempts</h6>
+                <h3>{attempts}</h3>
+              </Card.Body>
+            </Card>
+          </div>
+          <div className="col-md-4">
+            <Card className="shadow-sm h-100">
+              <Card.Body className="text-center">
+                <h6>Accuracy Rate</h6>
+                <h3 className="text-success">{accuracy}%</h3>
+              </Card.Body>
+            </Card>
+          </div>
+          <div className="col-md-4">
+            <Card className="shadow-sm h-100">
+              <Card.Body className="text-center">
+                <h6>Last Session Score</h6>
+                <h3 className="text-warning">{lastScore}</h3>
+              </Card.Body>
+            </Card>
+          </div>
+        </div>
+
+        {/* Accordion Section */}
+        <Accordion defaultActiveKey="0" className="mb-5">
+          <Accordion.Item eventKey="0">
+            <Accordion.Header>About This Project</Accordion.Header>
+            <Accordion.Body>
+              The Interview Reviewer is a platform designed to help candidates practice and refine
+              their interview skills. It provides curated questions, instant scoring, and detailed feedback
+              so you can track progress over time and identify areas for improvement.
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="1">
+            <Accordion.Header>How to Use</Accordion.Header>
+            <Accordion.Body>
+              <ul>
+                <li>Start by clicking "Start Questions".</li>
+                <li>Answer the interview questions to the best of your ability.</li>
+                <li>View your score and feedback instantly after submission.</li>
+                <li>Check "View History" for past attempts and progress tracking.</li>
+              </ul>
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="2">
+            <Accordion.Header>Scoring System</Accordion.Header>
+            <Accordion.Body>
+              Each question is evaluated based on accuracy and completeness. Your overall score is a
+              weighted average of all attempts, with detailed metrics such as accuracy rate and improvement trend.
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
+
       </div>
 
-      
-      <footer className="footer mt-auto py-3 bg-dark text-white text-center">
-        <div className="container">
-          <p>Scored in real-time. Feedback curated by staff.</p>
-          <small>nahyanfoxiom ©</small>
+      {/* Footer */}
+      <footer style={{ backgroundColor: "#2f3640", color: "#fff", padding: "15px 0" }}>
+        <div className="container text-center">
+          <p className="mb-0">&copy; {new Date().getFullYear()} Interview Reviewer. All Rights Reserved.</p>
         </div>
       </footer>
     </div>
   );
-}
+};
 
 export default Dashboard;

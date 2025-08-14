@@ -23,3 +23,31 @@ body {
     color: white;
     width: 100%;
 }
+/* Subtle, modern hero */
+.hero {
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  border-radius: 14px;
+}
+
+.hero-title {
+  letter-spacing: 0.2px;
+}
+
+/* Softer badges for KPIs */
+.badge-soft {
+  background: #f3f4f6;        /* light gray */
+  color: #111827;              /* near-black text */
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+}
+
+/* Compact action buttons */
+.hero-btn {
+  box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+}
+
+/* Keep things snug (less empty space) */
+.container .card .card-body {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
