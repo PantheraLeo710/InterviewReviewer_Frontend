@@ -1,8 +1,6 @@
 // src/config.js
 const isDev = process.env.NODE_ENV === 'development';
-const BASE_URL = isDev
-  ? 'http://localhost:5000/api/v1'
-  : 'https://interviewreviewer-backend.onrender.com/api/v1';
+const BASE_URL ='https://interviewreviewer-backend.onrender.com/api/v1';
 
 export const API = {
   AUTH: {

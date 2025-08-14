@@ -7,7 +7,7 @@ import SubmissionResult from './pages/SubmissionResult';
 import Home from "./pages/Home";
 import History from "./pages/History";
 import Dashboard from "./pages/dashboard";
-import ProtectedRoute from "./components/protectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 import StaffDashboard from "./pages/StaffDashboard";
 import FeedbackForm from './pages/FeedbackForm';
 import StaffWelcome from "./pages/staffLanding";
