@@ -5,10 +5,18 @@ import { API } from '../config';
 import jwt_decode from 'jwt-decode';
 import { toast } from 'react-toastify';
 import { Col, Container, Row } from 'react-bootstrap';
+import './staffDashboard.css'
+import { ChevronLeft, ChevronRight, MessageSquareMore, NotebookPen, NotepadText, SquarePlus, User } from 'lucide-react';
 
 const StaffDashboard = () => {
   const [activeTab, setActiveTab] = useState("questions");
   const [submissions, setSubmissions] = useState([]);
+  const [currentpage, setcurrentpage] = useState(1)
+  const [pages, setpages] = useState()
+  console.log("submissions", submissions);
+  console.log("pages", pages);
+
+
   const [feedbacks, setFeedbacks] = useState([]);
   const [questionForm, setQuestionForm] = useState({
     questionText: '',
@@ -17,9 +25,9 @@ const StaffDashboard = () => {
   });
 
   const navigate = useNavigate();
-
+  const token = localStorage.getItem('token');
   useEffect(() => {
-    const token = localStorage.getItem('token');
+
     if (!token || token === 'undefined') {
       toast.warning('Unauthorized. Please login again.');
       navigate('/login');
@@ -40,23 +48,54 @@ const StaffDashboard = () => {
       navigate('/questions');
       return;
     }
+  }, [navigate]);
 
+  useEffect(() => {
     const fetchAll = async () => {
       try {
         const headers = { Authorization: `Bearer ${token}` };
+
         const [subsRes, fbRes] = await Promise.all([
-          axios.get(API.ALL_SUBMISSIONS, { headers }),
+
+          axios.get(API.SUBMISSIONS, {
+            params: {
+              pages: currentpage,
+              limit: 10,
+            },
+          }),
+
           axios.get(API.FEEDBACK, { headers })
         ]);
-        setSubmissions(subsRes.data);
-        setFeedbacks(fbRes.data);
+
+        console.log("subsRes", subsRes);
+
+        setSubmissions(subsRes.data.subdata);
+        setpages(subsRes.data.pages)
+
+        setFeedbacks(fbRes.data.feedbacks);
+
       } catch (e) {
         console.error('Error loading staff data:', e);
       }
     };
 
     fetchAll();
-  }, [navigate]);
+  }, [currentpage])
+
+
+
+
+  const handleprev = () => {
+    if (currentpage > 1) {
+      setcurrentpage((prev) => prev - 1)
+    }
+  }
+
+  const handlenext = () => {
+    if (currentpage < pages) {
+      setcurrentpage((prev) => prev + 1)
+    }
+  }
 
   const handleQuestionChange = (i, value) => {
     const opts = [...questionForm.options];
@@ -78,9 +117,11 @@ const StaffDashboard = () => {
     }
   };
 
+
+
   return (
-    <div className="container mt-5">
-      <h2 className="text-center fw-bold mb-4">📋 Staff Dashboard</h2>
+    <div className="container-fluid mt-1 custom-div-bg">
+      <h2 className="text-center fw mb-3"><NotebookPen /> Staff Dashboard</h2>
 
       {/* Tab Navigation */}
       <ul className="nav nav-tabs justify-content-center">
@@ -111,14 +152,14 @@ const StaffDashboard = () => {
       </ul>
 
       {/* Tab Content */}
-      <div className="mt-4">
+      <div className="mt-1" >
         {activeTab === "questions" && (
           <Container>
-            <Row className="justify-content-center">
+            <Row className="justify-content-center" >
               <Col md={8}>
-                <div className="card shadow-sm border-0 p-5 rounded shadow-lg">
+                <div className="card border-0 p-5 rounded shadow-lg ">
                   <div className="card-header bg-primary text-white fw-semibold">
-                    ➕ Add New Question
+                    <SquarePlus /> Add New Question
                   </div>
                   <div className="card-body">
                     <form onSubmit={submitQuestion}>
@@ -174,7 +215,7 @@ const StaffDashboard = () => {
               <Col md={8}>
                 <div className="card shadow-sm border-0 p-5 rounded shadow-lg">
                   <div className="card-header bg-info text-white fw-semibold">
-                    📄 All Submissions
+                    <NotepadText /> All Submissions
                   </div>
                   <div className="card-body">
                     {submissions.length === 0 ? (
@@ -182,26 +223,49 @@ const StaffDashboard = () => {
                     ) : (
                       <div className="list-group">
                         {submissions
-                          .filter(s => s.status === "pass" && s.userId?.name)
-                          .map((s, idx) => (
-                            <div key={idx} className="list-group-item list-group-item-action border-0 shadow-sm rounded mb-2">
-                              <div className="fw-medium">
-                                👤 {s.userId.name} <span className="text-muted">({s.userId.email})</span>
-                              </div>
-                              <div className="small text-muted">
-                                Status: <span className="fw-semibold text-primary">{s.status}</span> |
-                                Score: <span className="fw-semibold">{s.score}/{s.totalQuestions}</span>
-                              </div>
-                            </div>
-                          ))}
+                          // .filter((s) => s.status === "pass") 
+                          .map((s, idx) => {
+  const userName = s.userId?.name ?? "Unknown Applicant";
+                        const userEmail = s.userId?.email ?? "-";
+                        const score = s.score ?? 0;
+                        const totalQuestions = s.totalQuestions ?? 0;
+                        const status = s.status ?? "N/A";
+
+                        return (
+                        <div
+                          key={idx}
+                          className="list-group-item list-group-item-action border-0 shadow-sm rounded mb-2"
+                        >
+                          <div className="fw-medium">
+                            <span className="me-2 text-secondary">{idx + 1}.</span>
+                            <User /> {userName} <span className="text-muted">({userEmail})</span>
+                          </div>
+                          <div className="small text-muted">
+                            Status: <span className="fw-semibold text-primary">{status}</span> |
+                            Score: <span className="fw-semibold">{score}/{totalQuestions}</span>
+                          </div>
+                        </div>
+                        );
+})}
                       </div>
                     )}
                   </div>
+                  <div className='submission_btn'>
+                    <div>
+                      <button onClick={handleprev}>  <ChevronLeft />Prev</button>
+                    </div>
+                    <div>
+                      <button onClick={handlenext}> <ChevronRight /> next</button>
+                    </div>
+                  </div>
                 </div>
+
               </Col>
+
             </Row>
           </Container>
         )}
+
 
         {activeTab === "feedback" && (
           <Container>
@@ -209,7 +273,7 @@ const StaffDashboard = () => {
               <Col md={8}>
                 <div className="card shadow-sm border-0 p-5 rounded shadow-lg">
                   <div className="card-header bg-warning text-dark fw-semibold">
-                    💬 Feedback
+                    <MessageSquareMore /> Feedback
                   </div>
                   <div className="card-body">
                     {feedbacks.length === 0 ? (

@@ -2,6 +2,7 @@ import React from "react";
 import { Card, Button, Accordion } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { FaChartBar, FaCheckCircle, FaTrophy } from "react-icons/fa";
+import { NotebookPen } from "lucide-react";
 
 const Dashboard = () => {
   // Hardcoded values for now
@@ -10,19 +11,19 @@ const Dashboard = () => {
   const lastScore = "9/10";
 
   return (
-    <div style={{ backgroundColor: "#f4f4f4", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: "#f4f4f4", minHeight: "70vh" }}>
       <div className="container py-4">
 
         {/* Main Header Card */}
-        <Card className="shadow-sm mb-4">
+        <Card className="shadow-sm mb-2">
           <Card.Body>
             <h2 className="fw-bold text-center">
-              Interview Reviewer Dashboard 🎯
+              Interview Reviewer Dashboard <NotebookPen />
             </h2>
             <p className="text-center text-muted">
               Track your interview performance, view feedback, and improve with every attempt.
             </p>
-            <div className="d-flex justify-content-center gap-3 mb-3">
+            <div className="d-flex justify-content-center gap-3 mb-2">
               <span><FaChartBar /> {attempts} Attempts</span>
               <span><FaCheckCircle /> {accuracy}% Accuracy</span>
               <span><FaTrophy /> Last Score: {lastScore}</span>
@@ -52,7 +53,7 @@ const Dashboard = () => {
         </Card>
 
         {/* Quote Card */}
-        <Card className="shadow-sm mb-4">
+        <Card className="shadow-sm mb-2">
           <Card.Body className="text-center text-primary">
             💡 <em>Success is the sum of small efforts, repeated day in and day out.</em>
           </Card.Body>
@@ -87,7 +88,7 @@ const Dashboard = () => {
         </div>
 
         {/* Accordion Section */}
-        <Accordion defaultActiveKey="0" className="mb-5">
+        <Accordion defaultActiveKey="0" className="mb-2">
           <Accordion.Item eventKey="0">
             <Accordion.Header>About This Project</Accordion.Header>
             <Accordion.Body>

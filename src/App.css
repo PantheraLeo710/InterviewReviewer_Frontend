@@ -1,4 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&family=Tirra:wght@400;500;600;700;800;900&display=swap');
 .visible-placeholder::placeholder {
   color: #dee2e6;
   opacity: 1;
 }
+

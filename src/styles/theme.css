@@ -1,0 +1,56 @@
+:root{
+  --brand: #eda12f; /* primary brand (professional blue) */
+  --brand-dark: #2456c9;
+  --muted: #6c757d;
+  --success: #28a745;
+}
+
+body{
+  background: #f6f8fb;
+}
+
+/* Card style and spacing */
+.card {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(10,22,70,0.06);
+}
+
+/* Primary brand button */
+.btn-brand {
+  background: var(--brand);
+  color: #fff;
+  border: 1px solid var(--brand);
+}
+.btn-brand:hover, .btn-brand:active { background: var(--brand-dark); border-color: var(--brand-dark); }
+
+/* Option buttons look */
+.btn-option {
+  border-radius: .75rem;
+  padding: .85rem 1rem;
+  font-weight: 600;
+  text-align: left;
+  transition: transform .06s ease, box-shadow .06s ease;
+}
+.btn-option + .btn-option { margin-top: .5rem; }
+.btn-option:hover { transform: translateY(-2px); }
+
+.btn-option.selected {
+  background: linear-gradient(90deg, rgba(47,111,237,0.08), rgba(47,111,237,0.04));
+  border: 1px solid rgba(47,111,237,0.35);
+  box-shadow: 0 6px 18px rgba(47,111,237,0.08);
+}
+
+/* Small utility to reduce vertical overflow on small screens */
+.app-center {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+/* Progress bar height */
+.progress { height: 8px; border-radius: 99px; overflow: hidden; }
+.progress .progress-bar { background: var(--brand); }

@@ -1,116 +1,79 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import jwt_decode from 'jwt-decode';
-import { UserRoundPen } from 'lucide-react';
+import { Link, useNavigate } from "react-router-dom";
+import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import jwt_decode from "jwt-decode";
+import { FaClipboardList, FaHistory, FaUser } from "react-icons/fa";
+import { RiLogoutBoxRLine } from 'react-icons/ri';
+import '../App.css'
+import { LayoutDashboard, MessageSquareMore } from "lucide-react";
 
-const Navbar = () => {
+export default function AppNavbar() {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+  const [tokenData, setTokenData] = useState(null);
 
-  let username = "";
-  let isStaff = false;
-
-  try {
-    if (token && token !== "undefined") {
-      const decoded = jwt_decode(token);
-      username = decoded.name || decoded.username || "";
-      isStaff = decoded.isStaff || false;
-    } else {
-      localStorage.removeItem("token");
+  console.log("tokenData",tokenData);
+  
+ const token = localStorage.getItem("token");
+  useEffect(() => {
+   
+    if (token) {
+      try {
+        const decoded = jwt_decode(token);
+        setTokenData(decoded);
+      } catch {
+        setTokenData(null);
+      }
     }
-  } catch (err) {
-    console.error(" Invalid token:", err.message);
-    localStorage.removeItem("token");
-  }
+  }, [token]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    setTokenData(null);
     navigate("/login");
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-      <div className="container-fluid">
-        <Link className="navbar-brand" to="/">Interview Reviewer</Link>
-
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto align-items-center gap-2">
-            {!token ? (
-              <li className="nav-item">
-                <NavLink to="/login" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                  Login
-                </NavLink>
-              </li>
-            ) : (
+    <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm mb-1 sticky-top">
+      <Container>
+        <Navbar.Brand as={Link} to="/"  style={{ fontFamily: "Roboto, Tirra, sans-serif" }}>Interview Reviewer</Navbar.Brand>
+        <Navbar.Toggle aria-controls="main-navbar" />
+        <Navbar.Collapse id="main-navbar">
+          <Nav className="me-auto">
+    
+            {/* User Links */}
+            {tokenData && !tokenData.isStaff && (
               <>
-                {/* Core User Links */}
-                <li className="nav-item">
-                  <NavLink to="/dashboard" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                    Dashboard
-                  </NavLink>
-                </li>
-                <li className="nav-item">
-                  <NavLink to="/questions" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                    Questions
-                  </NavLink>
-                </li>
-                <li className="nav-item">
-                  <NavLink to="/history" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                    History
-                  </NavLink>
-                </li>
-
-                {/* Staff-only Links */}
-                {isStaff && (
-                  <>
-                    <li className="nav-item">
-                      <NavLink to="/staff-dashboard" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                        Staff
-                      </NavLink>
-                    </li>
-                    <li className="nav-item">
-                      <NavLink to="/feedback" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                        Feedback
-                      </NavLink>
-                    </li>
-                  </>
-                )}
-
-                {/* User Info & Logout */}
-                <li className="nav-item">
-                  <div className="d-flex align-items-center gap-2 bg-secondary text-white px-3 py-1 rounded">
-                    <UserRoundPen size={15} />
-                    <span>{username}</span>
-                  </div>
-                </li>
-                <li className="nav-item">
-                  <button
-                    className="btn btn-outline-light ms-2"
-                    onClick={handleLogout}
-                    aria-label="Logout"
-                  >
-                    Logout
-                  </button>
-                </li>
+                <Nav.Link as={Link} to="/dashboard"><LayoutDashboard className="me-1" /> Dashboard</Nav.Link>
+                <Nav.Link as={Link} to="/questions"><FaClipboardList className="me-1" /> Questions</Nav.Link>
+                <Nav.Link as={Link} to="/history"><FaHistory className="me-1" /> History</Nav.Link>
               </>
             )}
-          </ul>
-        </div>
-      </div>
-    </nav>
-  );
-};
 
-export default Navbar;
+            {/* Staff Links */}
+            {tokenData?.isStaff && (
+              <>
+                <Nav.Link as={Link} to="/staff-dashboard"><LayoutDashboard className="me-1" /> Staff Dashboard</Nav.Link>
+                <Nav.Link as={Link} to="/feedback"><MessageSquareMore className="me-1" /> Feedback</Nav.Link>
+              </>
+            )}
+          </Nav>
+
+          <Nav>
+            {tokenData ? (
+              <NavDropdown title={tokenData.name || "Account"} align="end">
+                <NavDropdown.Item as={Link} to="/profile"><FaUser /> Profile</NavDropdown.Item>
+                <NavDropdown.Divider />
+                <NavDropdown.Item onClick={handleLogout}><RiLogoutBoxRLine className="me-1" />Logout</NavDropdown.Item>
+              </NavDropdown>
+            ) : (
+              <>
+                <Nav.Link as={Link} to="/login">Login</Nav.Link>
+                <Nav.Link as={Link} to="/signup">Signup</Nav.Link>
+              </>
+            )}
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
+  );
+}

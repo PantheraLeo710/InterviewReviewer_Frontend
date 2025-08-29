@@ -11,8 +11,10 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import StaffDashboard from "./pages/StaffDashboard";
 import FeedbackForm from './pages/FeedbackForm';
 import StaffWelcome from "./pages/staffLanding";
+import Profile from "./pages/Profile";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './styles/theme.css';
 
 function App() {
   return (
@@ -30,6 +32,7 @@ function App() {
           <Route path="/history" element={<History />} />
           <Route path="/feedback" element={<FeedbackForm />} />
           <Route path="/staff-welcome" element={<StaffWelcome />} />
+          <Route path="/profile" element={<Profile />} />
           <Route
             path="/staff-dashboard"
             element={

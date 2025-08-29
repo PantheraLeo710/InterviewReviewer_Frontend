@@ -12,7 +12,7 @@ const StaffWelcome = () => {
         <h1 className="display-4 fw-bold"> Well Done!</h1>
         <p className="lead">You've officially been <span className="text-success fw-bold">promoted to Staff</span>.</p>
         <p className="fs-5">Welcome to the company! We're thrilled to have you onboard as part of our mission to shape the future of interviews and feedback.</p>
-        
+      
         <div className="my-4">
           <BadgeCheck size={32} className="text-info" />
           <p className="mt-2">Your contributions matter. Let’s make great things happen together.</p>

@@ -1,6 +1,5 @@
 // src/config.js
-const isDev = process.env.NODE_ENV === 'development';
-const BASE_URL ='https://interviewreviewer-backend.onrender.com/api/v1';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://interviewreviewer-backend.onrender.com/api/v1';
 
 export const API = {
   AUTH: {
@@ -13,19 +12,7 @@ export const API = {
     MY_ANSWERS: `${BASE_URL}/answers/mine`,
     MY_SUBMISSIONS: `${BASE_URL}/answers/submissions/mine`,
   },
-  FEEDBACK: `${BASE_URL}/feedback`,
-  ALL_SUBMISSIONS: `${BASE_URL}/answers/submissions/all`,
+  FEEDBACK: `http://localhost:5000/feedback/viewfeedback`,
+  SUBMISSIONS: `http://localhost:5000/submit/viewsubmit`,
 };
-
-/*
-export const API = {
-  AUTH: {
-    LOGIN: import.meta.env.VITE_API_URL + '/auth/login',
-    SIGNUP: import.meta.env.VITE_API_URL + '/auth/signup',
-  },
-  QUESTIONS: import.meta.env.VITE_API_URL + '/questions',
-  ANSWERS: import.meta.env.VITE_API_URL + '/answers',
-  FEEDBACK: import.meta.env.VITE_API_URL + '/feedback',
-  SUBMISSIONS: import.meta.env.VITE_API_URL + '/answers/submissions/all',
-};
-*/
+export default { BASE_URL };

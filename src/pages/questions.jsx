@@ -1,174 +1,186 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+// src/pages/QuestionsPage.jsx
+import React, { useEffect, useState } from "react";
+import api from "../services/apiClient"; // or "../services/api" depending on your file
+import Loading from "../components/Loading";
 import { toast } from "react-toastify";
-import { API } from "../config";
-import jwt_decode from "jwt-decode";
 
-
-function QuestionsPage() {
+export default function QuestionsPage() {
   const [questions, setQuestions] = useState([]);
-  const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [result, setResult] = useState(null);
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token || token === "undefined") {
-      console.warn("🚨 Invalid token found in localStorage");
-      navigate("/login");
-    } else {
-      console.log("✅ Token being used:", token); // will run once
-      const decoded = jwt_decode(token);
-      console.log("Decoded user at StaffDashboard:", decoded);
-      setUser(decoded);
-    }
-  }, []);
-
-
+  const [index, setIndex] = useState(0);
+  const [answers, setAnswers] = useState({}); // { questionId:  }
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [result, setResult] = useState(null); // backend response (score, passed, etc.)
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    axios
-      .get(API.QUESTIONS, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    let mounted = true;
+    setLoading(true);
+    api.get("/questions")
       .then((res) => {
-        console.log("Fetched questions:", res.data);
-        setQuestions(res.data);
+        // support both res.data and res.data.data shapes
+        const payload = (res.data && (Array.isArray(res.data) ? res.data : res.data.data)) || [];
+        if (mounted) setQuestions(payload);
       })
       .catch((err) => {
-        console.error("Error fetching questions:", err);
-        toast.error("Failed to load questions");
-      });
+        console.error("Load questions error:", err);
+        toast.error("Failed to load questions. Try reloading.");
+      })
+      .finally(() => mounted && setLoading(false));
+    return () => (mounted = false);
   }, []);
 
+  if (loading) return <Loading label="Loading questions..." />;
 
-
-  const handleOptionChange = (questionId, selectedOption) => {
-    setSelectedAnswers((prev) => ({
-      ...prev,
-      [questionId]: selectedOption,
-    }));
-  };
-
-  const handleSubmit = async () => {
-    const token = localStorage.getItem("token");
-
-    if (user?.isStaff === true) {
-      toast.warn("Staff users are not allowed to submit answers.");
-      return;
-    }
-
-    const formattedAnswers = Object.entries(selectedAnswers).map(
-      ([questionId, selectedOption]) => ({
-        questionId,
-        selectedOption,
-      })
-    );
-
-    if (formattedAnswers.length !== questions.length) {
-      toast.warn("Please answer all questions before submitting.");
-      return;
-    }
-
-    try {
-      console.log("Submitting to:", API.ANSWERS.SUBMIT);
-      const res = await axios.post(API.ANSWERS.SUBMIT,
-        { answers: formattedAnswers },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        console.log("New staff token stored ✅");
-      }
-
-      setResult(res.data);
-      toast.success(`You ${res.data.status}ed!`, {
-        autoClose: 3000,
-      });
-
-      // Redirect only if passed
-      if (res.data.status === "pass") {
-        navigate("/staff-welcome");
-      } else {
-        navigate("/submission-result", { state: res.data });
-      }
-
-    } catch (err) {
-      console.error("Submission failed:", err);
-      toast.error("Submission failed. Please try again.");
-    }
-  };
-
-  return (
-    <div className="container mt-5">
-      <h2 className="mb-4 text-center">Answer the Questions</h2>
-
-      {questions.map((q, index) => (
-        <div key={q._id} className="card mb-4 shadow-sm">
-          <div className="card-body">
-            <h5 className="card-title">
-              Q{index + 1}. {q.questionText}
-            </h5>
-            <div className="btn-group w-100 flex-wrap" role="group">
-              {q.options.map((opt, i) => (
-                <div key={i}>
-                  <input
-                    type="radio"
-                    className="btn-check"
-                    name={`question-${q._id}`}
-                    id={`q${q._id}-opt${i}`}
-                    value={opt}
-                    checked={selectedAnswers[q._id] === opt}
-                    onChange={() => handleOptionChange(q._id, opt)}
-                    autoComplete="off"
-                  />
-                  <label
-                    className={`btn ${selectedAnswers[q._id] === opt ? 'btn-success' : 'btn-outline-primary'} m-1`}
-                    htmlFor={`q${q._id}-opt${i}`}
-                  >
-                    {opt}
-                  </label>
-                </div>
-              ))}
-            </div>
-
-
+  if (!questions || questions.length === 0) {
+    return (
+      <div className="container app-center">
+        <div className="card w-100" style={{ maxWidth: 800 }}>
+          <div className="card-body text-center">
+            <h4>No questions available</h4>
+            <p className="text-muted">Please check again later or contact staff.</p>
           </div>
         </div>
-      ))}
+      </div>
+    );
+  }
 
-      <div className="text-center">
-        <button
-          className="btn btn-success btn-lg px-5"
-          onClick={handleSubmit}
-          disabled={user?.isStaff === true}
-        >
-          Submit Answers
-        </button>
+  const total = questions.length;
+  const q = questions[index];
+  const selected = answers[q._id];
 
-        {user?.isStaff === true && (
-          <p className="text-danger mt-2">
-            Staff users are not allowed to submit answers.
-          </p>
-        )}
+  function selectOption(selectedOption) {
+    setAnswers(prev => ({ ...prev, [q._id]: selectedOption }));
+  }
 
+  function goPrev() {
+    setIndex(i => Math.max(0, i - 1));
+  }
 
+  function goNext() {
+    if (index < total - 1) setIndex(i => i + 1);
+  }
+
+  async function handleSubmit() {
+    // prepare payload according to backend expectation
+    const payload = {
+      answers: Object.entries(answers).map(([questionId, selectedOption]) => ({ questionId, selectedOption })),
+    };
+    setSubmitting(true);
+    try {
+      const { data } = await api.post("/answers", payload);
+      console.log("Frontend received response:", data);
+
+      // backend may return score or message. Keep it flexible.
+      toast.success("Submitted!");
+      setResult(data || { message: "Submission received" });
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Submit error:", err);
+      toast.error(err?.response?.data?.message || "Submit failed");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  // UI
+  const progressPercent = Math.round(((index + 1) / total) * 100);
+
+  return (
+    <div className="container app-center">
+      <div className="card w-100" style={{ maxWidth: 920 }}>
+        <div className="card-body">
+          {!submitted ? (
+            <>
+              <div className="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                  <h5 className="mb-0">Question <span className="text-muted">({index + 1}/{total})</span></h5>
+                  <small className="text-muted">Answer carefully — only move forward after selecting.</small>
+                </div>
+                <div style={{ width: 260 }}>
+                  <div className="progress" aria-hidden>
+                    <div className="progress-bar" style={{ width: `${progressPercent}%` }} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <div className="h6 fw-semibold">{q.questionText}</div>
+                {q.description && <div className="mt-2 text-muted">{q.description}</div>}
+              </div>
+
+              <div className="mb-4">
+                {(q.options || q.selectedOption || []).map((opt, idx) => {
+                  const isSelected = selected === opt;
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={`btn btn-option w-100 ${isSelected ? "selected" : "btn-outline-secondary"}`}
+                      onClick={() => selectOption(opt)}
+                      aria-pressed={isSelected}
+                    >
+                      <div className="d-flex justify-content-between align-items-center">
+                        <div>{opt}</div>
+                        {isSelected && <i className="bi bi-check-circle-fill" aria-hidden />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="d-flex justify-content-between">
+                <button className="btn btn-light" onClick={goPrev} disabled={index === 0}>Back</button>
+
+                {index < total - 1 ? (
+                  <button
+                    className="btn btn-brand"
+                    onClick={goNext}
+                    disabled={!selected}
+                    title={!selected ? "Select an option to continue" : "Next question"}
+                  >
+                    Next <i className="bi bi-arrow-right ms-2" />
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-success"
+                    onClick={handleSubmit}
+                    disabled={submitting || !selected}
+                  >
+                    {submitting ? "Submitting..." : "Submit Answers"}
+                  </button>
+                )}
+              </div>
+            </>
+          ) : (
+            /* Submission result card */
+            <div className="text-center py-5">
+              <div className="mb-3">
+                <i className="bi bi-check-circle-fill" style={{ fontSize: 48, color: "var(--success)" }} />
+              </div>
+              <h4 className="mb-1">Submission received</h4>
+              {result?.score != null ? (
+                <p className="lead mb-1">{`Score: ${result.score} / ${result.totalQuestions}`}</p>
+              ) : result?.message ? (
+                <p className="text-muted">{result.message}</p>
+              ) : null}
+
+              {/* If backend returns whether user has been promoted or deleted, show it. */}
+              {result?.promoted && (
+                <p className="text-success">Congratulations — your account was promoted.</p>
+              )}
+              {result?.deleted && (
+                <p className="text-danger">Your account was removed (contact staff for details).</p>
+              )}
+
+              <div className="mt-4 d-flex justify-content-center gap-2">
+                <a className="btn btn-outline-primary" href="/questions">Return</a>
+                <a className="btn btn-secondary" href="/">Home</a>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
-
-export default QuestionsPage;
