@@ -1,5 +1,5 @@
 // src/config.js
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://interviewreviewer-backend.onrender.com/api/v1';
+const BASE_URL =  'https://interviewreviewer-backend.onrender.com/api/v1';
 
 export const API = {
   AUTH: {
