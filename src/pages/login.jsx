@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import React from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -10,7 +9,6 @@ const Login = () => {
   const navigate = useNavigate();
 
   const initialValues = { email: "", password: "" };
-
   const validationSchema = Yup.object({
     email: Yup.string().email("Invalid email").required("Email is required"),
     password: Yup.string().required("Password is required"),

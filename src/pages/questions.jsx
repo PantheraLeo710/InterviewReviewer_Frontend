@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import api from "../services/apiClient"; // or "../services/api" depending on your file
 import Loading from "../components/Loading";
 import { toast } from "react-toastify";
+import { FaRedo } from "react-icons/fa";
+import { MdRefresh } from "react-icons/md";
 
 export default function QuestionsPage() {
   const [questions, setQuestions] = useState([]);
@@ -18,7 +20,6 @@ export default function QuestionsPage() {
     setLoading(true);
     api.get("/questions")
       .then((res) => {
-        // support both res.data and res.data.data shapes
         const payload = (res.data && (Array.isArray(res.data) ? res.data : res.data.data)) || [];
         if (mounted) setQuestions(payload);
       })
@@ -62,16 +63,13 @@ export default function QuestionsPage() {
   }
 
   async function handleSubmit() {
-    // prepare payload according to backend expectation
     const payload = {
       answers: Object.entries(answers).map(([questionId, selectedOption]) => ({ questionId, selectedOption })),
     };
     setSubmitting(true);
     try {
-      const { data } = await api.post("/answers", payload);
+      const { data } = await api.post("/answers/quiz", payload);
       console.log("Frontend received response:", data);
-
-      // backend may return score or message. Keep it flexible.
       toast.success("Submitted!");
       setResult(data || { message: "Submission received" });
       setSubmitted(true);
@@ -164,18 +162,9 @@ export default function QuestionsPage() {
               ) : result?.message ? (
                 <p className="text-muted">{result.message}</p>
               ) : null}
-
-              {/* If backend returns whether user has been promoted or deleted, show it. */}
-              {result?.promoted && (
-                <p className="text-success">Congratulations — your account was promoted.</p>
-              )}
-              {result?.deleted && (
-                <p className="text-danger">Your account was removed (contact staff for details).</p>
-              )}
-
               <div className="mt-4 d-flex justify-content-center gap-2">
-                <a className="btn btn-outline-primary" href="/questions">Return</a>
-                <a className="btn btn-secondary" href="/">Home</a>
+                <a className="btn btn-warning" href="/questions"><MdRefresh />   Try Again</a>
+                <a className="btn btn-secondary" href="/dashboard">Dashboard</a>
               </div>
             </div>
           )}

@@ -1,23 +1,25 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { API } from '../config';
+import api from "../services/apiClient";
 
 
 function History() {
   const [submissions, setSubmissions] = useState([]);
+  console.log("submissions",submissions)
+  const token = localStorage.getItem("token");
+  console.log("token",token)
 
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get(API.ANSWERS.MY_SUBMISSIONS,
+        const res = await api.get(API.MYSUBMISSIONS,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        setSubmissions(res.data);
+        setSubmissions(res.data.submission);
       } catch (err) {
         console.error("Failed to fetch submissions", err);
       }
@@ -25,6 +27,8 @@ function History() {
 
     fetchSubmissions();
   }, []);
+    
+  console.log(submissions,'submissions');
 
   return (
     <div className="container mt-4">

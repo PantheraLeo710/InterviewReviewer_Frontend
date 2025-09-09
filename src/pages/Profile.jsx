@@ -1,4 +1,3 @@
-// src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -34,18 +33,14 @@ export default function Profile() {
     };
   }, []);
 
-  // Lazy-load submissions only when needed.
   const loadSubmissions = async () => {
     if (subsLoaded || loadingSubs) return;
     setLoadingSubs(true);
     try {
-      // Primary: try the endpoint you use in History. If your project has a different route,
-      // replace "/answers/my-submissions" with the correct one.
       let res;
       try {
-        res = await api.get("/answers/my-submissions");
+        res = await api.get("/answers/mine");
       } catch (e) {
-        // fallback: try a more generic submissions endpoint with userId param
         res = await api.get("/submissions", { params: { userId: user?._id } });
       }
 
@@ -85,17 +80,10 @@ export default function Profile() {
             )}
 
             <div className="d-flex gap-2 mt-2">
-              <button
-                className="btn btn-outline-primary"
-                onClick={loadSubmissions}
-                disabled={loadingSubs || subsLoaded || !user.hasAttempted}
-                title={!user.hasAttempted ? "You haven't attempted any submissions yet" : undefined}
-              >
-                {loadingSubs ? "Loading submissions…" : subsLoaded ? "Submissions loaded" : "Load submission history"}
-              </button>
+              
 
               <Link to="/history" className="btn btn-secondary">
-                View full history
+                View full submission history
               </Link>
             </div>
           </div>

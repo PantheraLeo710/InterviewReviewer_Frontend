@@ -10,12 +10,8 @@ import { LayoutDashboard, MessageSquareMore } from "lucide-react";
 export default function AppNavbar() {
   const navigate = useNavigate();
   const [tokenData, setTokenData] = useState(null);
-
-  console.log("tokenData",tokenData);
-  
- const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
   useEffect(() => {
-   
     if (token) {
       try {
         const decoded = jwt_decode(token);
@@ -25,6 +21,7 @@ export default function AppNavbar() {
       }
     }
   }, [token]);
+  console.log("tokenData",tokenData);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -35,11 +32,11 @@ export default function AppNavbar() {
   return (
     <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm mb-1 sticky-top">
       <Container>
-        <Navbar.Brand as={Link} to="/"  style={{ fontFamily: "Roboto, Tirra, sans-serif" }}>Interview Reviewer</Navbar.Brand>
+        <Navbar.Brand as={Link} to="/" style={{ fontFamily: "Roboto, Tirra, sans-serif" }}>Interview Reviewer</Navbar.Brand>
         <Navbar.Toggle aria-controls="main-navbar" />
         <Navbar.Collapse id="main-navbar">
           <Nav className="me-auto">
-    
+
             {/* User Links */}
             {tokenData && !tokenData.isStaff && (
               <>

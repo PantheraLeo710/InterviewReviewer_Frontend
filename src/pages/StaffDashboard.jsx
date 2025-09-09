@@ -1,39 +1,34 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { API } from '../config';
+
 import jwt_decode from 'jwt-decode';
 import { toast } from 'react-toastify';
 import { Col, Container, Row } from 'react-bootstrap';
 import './staffDashboard.css'
 import { ChevronLeft, ChevronRight, MessageSquareMore, NotebookPen, NotepadText, SquarePlus, User } from 'lucide-react';
+import API from '../config';
+import api from '../services/apiClient';
 
 const StaffDashboard = () => {
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
   const [activeTab, setActiveTab] = useState("questions");
   const [submissions, setSubmissions] = useState([]);
   const [currentpage, setcurrentpage] = useState(1)
   const [pages, setpages] = useState()
-  console.log("submissions", submissions);
-  console.log("pages", pages);
-
-
   const [feedbacks, setFeedbacks] = useState([]);
   const [questionForm, setQuestionForm] = useState({
     questionText: '',
     options: ['', '', '', ''],
     correctAnswer: ''
   });
-
-  const navigate = useNavigate();
-  const token = localStorage.getItem('token');
   useEffect(() => {
-
     if (!token || token === 'undefined') {
       toast.warning('Unauthorized. Please login again.');
       navigate('/login');
       return;
     }
-
     let decoded;
     try {
       decoded = jwt_decode(token);
@@ -53,26 +48,26 @@ const StaffDashboard = () => {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const headers = { Authorization: `Bearer ${token}` };
+        // const headers = { Authorization: `Bearer ${token}` };
 
         const [subsRes, fbRes] = await Promise.all([
 
-          axios.get(API.SUBMISSIONS, {
+          api.get(API.SUBMISSIONS, {
             params: {
               pages: currentpage,
               limit: 10,
             },
           }),
 
-          axios.get(API.FEEDBACK, { headers })
+          api.get(API.FEEDBACK)
         ]);
-
+        console.log("fbRes",fbRes.data)
         console.log("subsRes", subsRes);
 
         setSubmissions(subsRes.data.subdata);
         setpages(subsRes.data.pages)
 
-        setFeedbacks(fbRes.data.feedbacks);
+        setFeedbacks(fbRes.data);
 
       } catch (e) {
         console.error('Error loading staff data:', e);
@@ -108,7 +103,7 @@ const StaffDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       const headers = { Authorization: `Bearer ${token}` };
-      await axios.post(API.QUESTIONS, questionForm, { headers });
+      await api.post(API.QUESTIONS, questionForm, { headers });
       toast.success('Question added successfully!');
       setQuestionForm({ questionText: '', options: ['', '', '', ''], correctAnswer: '' });
     } catch (e) {
@@ -218,35 +213,35 @@ const StaffDashboard = () => {
                     <NotepadText /> All Submissions
                   </div>
                   <div className="card-body">
-                    {submissions.length === 0 ? (
+                    {!submissions ? (
                       <p className="text-muted text-center">No submissions yet.</p>
                     ) : (
                       <div className="list-group">
                         {submissions
                           // .filter((s) => s.status === "pass") 
                           .map((s, idx) => {
-  const userName = s.userId?.name ?? "Unknown Applicant";
-                        const userEmail = s.userId?.email ?? "-";
-                        const score = s.score ?? 0;
-                        const totalQuestions = s.totalQuestions ?? 0;
-                        const status = s.status ?? "N/A";
+                            const userName = s.userId?.name ?? "Unknown Applicant";
+                            const userEmail = s.userId?.email ?? "-";
+                            const score = s.score ?? 0;
+                            const totalQuestions = s.totalQuestions ?? 0;
+                            const status = s.status ?? "N/A";
 
-                        return (
-                        <div
-                          key={idx}
-                          className="list-group-item list-group-item-action border-0 shadow-sm rounded mb-2"
-                        >
-                          <div className="fw-medium">
-                            <span className="me-2 text-secondary">{idx + 1}.</span>
-                            <User /> {userName} <span className="text-muted">({userEmail})</span>
-                          </div>
-                          <div className="small text-muted">
-                            Status: <span className="fw-semibold text-primary">{status}</span> |
-                            Score: <span className="fw-semibold">{score}/{totalQuestions}</span>
-                          </div>
-                        </div>
-                        );
-})}
+                            return (
+                              <div
+                                key={idx}
+                                className="list-group-item list-group-item-action border-0 shadow-sm rounded mb-2"
+                              >
+                                <div className="fw-medium">
+                                  <span className="me-2 text-secondary">{idx + 1}.</span>
+                                  <User /> {userName} <span className="text-muted">({userEmail})</span>
+                                </div>
+                                <div className="small text-muted">
+                                  Status: <span className="fw-semibold text-primary">{status}</span> |
+                                  Score: <span className="fw-semibold">{score}/{totalQuestions}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
                       </div>
                     )}
                   </div>
@@ -276,14 +271,14 @@ const StaffDashboard = () => {
                     <MessageSquareMore /> Feedback
                   </div>
                   <div className="card-body">
-                    {feedbacks.length === 0 ? (
+                    {!feedbacks ? (
                       <p className="text-muted text-center">No feedback yet.</p>
                     ) : (
                       <div className="list-group">
                         {feedbacks.map((f, i) => (
                           <div key={i} className="list-group-item list-group-item-action border-0 shadow-sm rounded mb-2">
                             <div className="fw-medium">
-                              {f.applicantId?.name ?? 'Unknown'}:
+                            {f.applicantId?.name}:
                               <span className="text-muted"> {f.feedbackText}</span>
                             </div>
                             <div className="small">

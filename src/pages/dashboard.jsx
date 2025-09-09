@@ -1,14 +1,43 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, Button, Accordion } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { FaChartBar, FaCheckCircle, FaTrophy } from "react-icons/fa";
 import { NotebookPen } from "lucide-react";
+import api from "../services/apiClient";
+import API from "../config";
 
 const Dashboard = () => {
-  // Hardcoded values for now
-  const attempts = 5;
-  const accuracy = 80;
-  const lastScore = "9/10";
+    const [submissions, setSubmissions] = useState([]);
+    const [details, setdetails] = useState([]);
+
+    console.log("submissions",submissions);
+    const token = localStorage.getItem("token");
+    console.log("token",token);
+    useEffect(() => {
+      const fetchSubmissions = async () => {
+        try {
+          const res = await api.get(API.MYSUBMISSIONS,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`
+              },                                
+            }
+          );
+          setSubmissions(res.data.submission);
+          setdetails(res.data);
+                    
+        } catch (error) {
+          console.error("failed to fetch submissions", error);
+        }
+      }
+      fetchSubmissions();
+      },[])
+      
+      console.log('details:', details);
+      
+  const attempts = details.count || 0;
+  const accuracy = details.accuracy || 0;
+  const lastScore = details.submission?.[details.submission.length - 1]?.score ?? "No submissions yet";
 
   return (
     <div style={{ backgroundColor: "#f4f4f4", minHeight: "70vh" }}>
@@ -23,11 +52,6 @@ const Dashboard = () => {
             <p className="text-center text-muted">
               Track your interview performance, view feedback, and improve with every attempt.
             </p>
-            <div className="d-flex justify-content-center gap-3 mb-2">
-              <span><FaChartBar /> {attempts} Attempts</span>
-              <span><FaCheckCircle /> {accuracy}% Accuracy</span>
-              <span><FaTrophy /> Last Score: {lastScore}</span>
-            </div>
             <div className="d-flex justify-content-center gap-5">
               <Button
                 as={Link}
@@ -55,7 +79,7 @@ const Dashboard = () => {
         {/* Quote Card */}
         <Card className="shadow-sm mb-2">
           <Card.Body className="text-center text-primary">
-            💡 <em>Success is the sum of small efforts, repeated day in and day out.</em>
+             <em>Success is the sum of small efforts, repeated day in and day out.</em>
           </Card.Body>
         </Card>
 
@@ -64,7 +88,7 @@ const Dashboard = () => {
           <div className="col-md-4">
             <Card className="shadow-sm h-100">
               <Card.Body className="text-center">
-                <h6>Total Attempts</h6>
+                <h6><FaChartBar />Total Attempts</h6>
                 <h3>{attempts}</h3>
               </Card.Body>
             </Card>
@@ -72,16 +96,16 @@ const Dashboard = () => {
           <div className="col-md-4">
             <Card className="shadow-sm h-100">
               <Card.Body className="text-center">
-                <h6>Accuracy Rate</h6>
-                <h3 className="text-success">{accuracy}%</h3>
+                <h6><FaCheckCircle />Accuracy Rate</h6>
+                <h3 className={accuracy >= 60 ? "text-success" : "text-danger"}>{accuracy}%</h3>
               </Card.Body>
             </Card>
           </div>
           <div className="col-md-4">
             <Card className="shadow-sm h-100">
               <Card.Body className="text-center">
-                <h6>Last Session Score</h6>
-                <h3 className="text-warning">{lastScore}</h3>
+                <h6><FaTrophy />Last Session Score</h6>
+                <h3 className="text-info">{lastScore}</h3>
               </Card.Body>
             </Card>
           </div>
