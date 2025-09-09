@@ -6,7 +6,7 @@ const DEFAULT_BASE = import.meta.env.VITE_API_URL || "https://interviewreviewer-
 console.log(DEFAULT_BASE,'DEFAULT_BASE')
 
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: DEFAULT_BASE,
   withCredentials: false,
 });
 
