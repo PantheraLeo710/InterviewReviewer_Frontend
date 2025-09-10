@@ -5,6 +5,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import api from "../services/apiClient";
+import "./Signup.css"; // Scoped Neumorphic styles for signup
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -14,16 +15,23 @@ const Signup = () => {
   const validationSchema = Yup.object({
     name: Yup.string().required("Name is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
-    password: Yup.string().min(6, "Min 6 characters").required("Password is required"),
+    password: Yup.string()
+      .min(6, "Min 6 characters")
+      .required("Password is required"),
   });
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       const { data } = await api.post("/auth/signup", values);
+
       const token = data?.token;
       const user = data?.user;
+
       if (token) localStorage.setItem("token", token);
+
       toast.success("Signup successful!");
+
+      // Role-based navigation
       if (user?.isStaff) navigate("/staff-dashboard");
       else navigate("/");
     } catch (err) {
@@ -35,36 +43,81 @@ const Signup = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <h2 className="text-center mb-4">Create Account</h2>
-      <div className="row justify-content-center">
-        <div className="col-md-6">
-          <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
-            {({ isSubmitting }) => (
-              <Form className="border p-4 rounded bg-light shadow">
-                <div className="mb-3">
-                  <label className="form-label">Name</label>
-                  <Field name="name" className="form-control" />
-                  <ErrorMessage name="name" component="div" className="text-danger small" />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Email</label>
-                  <Field name="email" type="email" className="form-control" />
-                  <ErrorMessage name="email" component="div" className="text-danger small" />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Password</label>
-                  <Field name="password" type="password" className="form-control" />
-                  <ErrorMessage name="password" component="div" className="text-danger small" />
-                </div>
-                <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>
-                  {isSubmitting ? "Signing up..." : "Sign Up"}
-                </button>
-              </Form>
-            )}
-          </Formik>
-          <p className="text-center mt-3">
-            Already have an account? <Link to="/login">Login</Link>
+    <div className="signup-wrapper">
+      <div className="signup-card">
+        <h2 className="signup-title">Create Account</h2>
+        <p className="signup-subtitle">Join us and get started</p>
+
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting }) => (
+            <Form className="signup-form">
+              {/* Name */}
+              <div className="form-group">
+                <Field
+                  name="name"
+                  placeholder="Full Name"
+                  className="neu-input"
+                />
+                <ErrorMessage
+                  name="name"
+                  component="div"
+                  className="error"
+                />
+              </div>
+
+              {/* Email */}
+              <div className="form-group">
+                <Field
+                  name="email"
+                  type="email"
+                  placeholder="Email"
+                  className="neu-input"
+                />
+                <ErrorMessage
+                  name="email"
+                  component="div"
+                  className="error"
+                />
+              </div>
+
+              {/* Password */}
+              <div className="form-group">
+                <Field
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  className="neu-input"
+                />
+                <ErrorMessage
+                  name="password"
+                  component="div"
+                  className="error"
+                />
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                className="neu-button"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Signing up..." : "Sign Up"}
+              </button>
+            </Form>
+          )}
+        </Formik>
+
+        {/* Footer */}
+        <div className="signup-footer">
+          <p>
+            Already have an account?{" "}
+            <Link to="/login" className="signup-link">
+              Login
+            </Link>
           </p>
         </div>
       </div>
