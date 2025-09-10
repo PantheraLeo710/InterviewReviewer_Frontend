@@ -1,62 +1,94 @@
-import React from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import axios from "axios";
+import "./Login.css"; 
 import { toast } from "react-toastify";
-import api from "../services/apiClient";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  const initialValues = { email: "", password: "" };
+  // Validation schema
   const validationSchema = Yup.object({
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    password: Yup.string().required("Password is required"),
+    email: Yup.string().email("Invalid email format").required("Email is required"),
+    password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
   });
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleLogin = async (values) => {
+    setLoading(true);
     try {
-      const { data } = await api.post("/auth/login", values);
-      const token = data?.token;
-      const user = data?.user;
-      if (token) localStorage.setItem("token", token);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, values);
+      const { token, user } = res.data;
+
+      // Save token
+      localStorage.setItem("token", token);
+
       toast.success("Login successful!");
-      if (user?.isStaff) navigate("/staff-dashboard");
-      else navigate("/");
-    } catch (err) {
-      console.error("Login Error:", err);
-      toast.error(err?.response?.data?.message || "Invalid credentials");
+
+      // Redirect based on role
+      if (user.isStaff) {
+        navigate("/staff-dashboard");
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Login failed!");
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="container mt-5">
-      <h2 className="text-center mb-4">Login</h2>
-      <div className="row justify-content-center">
-        <div className="col-md-6">
-          <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
-            {({ isSubmitting }) => (
-              <Form className="border p-4 rounded bg-light shadow">
-                <div className="mb-3">
-                  <label className="form-label">Email</label>
-                  <Field name="email" type="email" className="form-control" />
-                  <ErrorMessage name="email" component="div" className="text-danger small" />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Password</label>
-                  <Field name="password" type="password" className="form-control" />
-                  <ErrorMessage name="password" component="div" className="text-danger small" />
-                </div>
-                <button type="submit" className="btn btn-primary w-100" disabled={isSubmitting}>
-                  {isSubmitting ? "Logging in..." : "Login"}
-                </button>
-              </Form>
-            )}
-          </Formik>
-          <p className="text-center mt-3">
-            Don't have an account? <Link to="/signup">Signup</Link>
+    <div className="login-wrapper">
+      <div className="login-card">
+        <h2 className="login-title">Welcome Back</h2>
+        <p className="login-subtitle">Login to continue</p>
+
+        <Formik
+          initialValues={{ email: "", password: "" }}
+          validationSchema={validationSchema}
+          onSubmit={handleLogin}
+        >
+          {() => (
+            <Form className="login-form">
+              {/* Email */}
+              <div className="form-group">
+                <Field
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  className="neu-input"
+                />
+                <ErrorMessage name="email" component="div" className="error" />
+              </div>
+
+              {/* Password */}
+              <div className="form-group">
+                <Field
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  className="neu-input"
+                />
+                <ErrorMessage name="password" component="div" className="error" />
+              </div>
+
+              {/* Submit button */}
+              <button type="submit" className="neu-button" disabled={loading}>
+                {loading ? "Logging in..." : "Login"}
+              </button>
+            </Form>
+          )}
+        </Formik>
+
+        <div className="login-footer">
+          <p>
+            Don't have an account?{" "}
+            <span className="signup-link" onClick={() => navigate("/signup")}>
+              Sign up
+            </span>
           </p>
         </div>
       </div>
